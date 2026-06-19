@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    match /users/{userId} {
+      allow create: if isOwner(userId) &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.role in ["user", "admin"];
+
+      allow read: if isOwner(userId) || isAdmin();
+
+      allow update: if isOwner(userId) &&
+        request.resource.data.uid == resource.data.uid &&
+        request.resource.data.email == resource.data.email &&
+        request.resource.data.role == resource.data.role;
+
+      allow delete: if isAdmin();
+    }
+
+    match /listings/{listingId} {
+      allow read: if resource.data.status == "approved" || isAdmin() || isOwner(resource.data.sellerId);
+
+      allow create: if signedIn() &&
+        request.resource.data.sellerId == request.auth.uid &&
+        request.resource.data.status == "pending" &&
+        request.resource.data.title is string &&
+        request.resource.data.category is string &&
+        request.resource.data.condition is string &&
+        request.resource.data.price is number &&
+        request.resource.data.price > 0 &&
+        request.resource.data.quantity is number &&
+        request.resource.data.quantity > 0 &&
+        request.resource.data.location is string &&
+        request.resource.data.description is string &&
+        request.resource.data.whatsappNumber is string &&
+        request.resource.data.imageUrls is list;
+
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+  }
+}
