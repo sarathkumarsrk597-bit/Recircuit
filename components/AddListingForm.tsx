@@ -76,8 +76,10 @@ export function AddListingForm({
       await createListing(values, seller);
       setValues(initialValues);
       setSubmitted(true);
-    } catch {
-      setFormError("Could not submit listing. Check Firebase rules and config.");
+    } catch (reason) {
+      const message =
+        reason instanceof Error ? reason.message : "Unknown submission error";
+      setFormError(`Could not submit listing: ${message}`);
     } finally {
       setSubmitting(false);
     }
