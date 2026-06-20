@@ -38,7 +38,9 @@ export function validateListingForm(values: ListingFormValues) {
     errors.whatsappNumber = "Enter a valid WhatsApp number.";
   }
 
-  if (values.images.length > 5) {
+  if (values.images.length === 0) {
+    errors.images = "Upload at least one product image.";
+  } else if (values.images.length > 5) {
     errors.images = "Upload up to 5 images.";
   }
 
