@@ -13,27 +13,15 @@ import {
   serverTimestamp,
   updateDoc,
   where
-} from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { db, storage } from "./firebase";
+} from "@firebase/firestore";
+import { uploadImageToCloudinary } from "./cloudinary";
+import { db } from "./firebase";
 import type { Listing, ListingFilters, ListingFormValues, ListingStatus } from "./types";
 
 const listingsRef = collection(db, "listings");
 
 export async function uploadListingImages(files: File[], sellerId: string) {
-  const uploads = files.map(async (file) => {
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const imageRef = ref(
-      storage,
-      `listings/${sellerId}/${crypto.randomUUID()}-${safeName}`
-    );
-
-    await uploadBytes(imageRef, file, {
-      contentType: file.type
-    });
-
-    return getDownloadURL(imageRef);
-  });
+  const uploads = files.map((file) => uploadImageToCloudinary(file, sellerId));
 
   return Promise.all(uploads);
 }
@@ -66,30 +54,32 @@ export async function getRecentApprovedListings(count = 8) {
     query(
       listingsRef,
       where("status", "==", "approved"),
-      orderBy("createdAt", "desc"),
-      limit(count)
+      limit(50)
     )
   );
 
-  return snapshot.docs.map((item) => ({
-    id: item.id,
-    ...item.data()
-  })) as Listing[];
+  return sortByNewest(
+    snapshot.docs.map((item) => ({
+      id: item.id,
+      ...item.data()
+    })) as Listing[]
+  ).slice(0, count);
 }
 
 export async function getApprovedListings() {
   const snapshot = await getDocs(
     query(
       listingsRef,
-      where("status", "==", "approved"),
-      orderBy("createdAt", "desc")
+      where("status", "==", "approved")
     )
   );
 
-  return snapshot.docs.map((item) => ({
-    id: item.id,
-    ...item.data()
-  })) as Listing[];
+  return sortByNewest(
+    snapshot.docs.map((item) => ({
+      id: item.id,
+      ...item.data()
+    })) as Listing[]
+  );
 }
 
 export async function getAllListings() {
@@ -154,4 +144,10 @@ export function applyListingFilters(listings: Listing[], filters: ListingFilters
 
       return (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
     });
+}
+
+function sortByNewest(listings: Listing[]) {
+  return [...listings].sort(
+    (a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)
+  );
 }

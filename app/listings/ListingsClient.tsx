@@ -29,7 +29,13 @@ export function ListingsClient({
   useEffect(() => {
     getApprovedListings()
       .then(setListings)
-      .catch(() => setError("Could not load listings. Check Firebase setup."))
+      .catch((reason) => {
+        const message =
+          reason instanceof Error
+            ? reason.message
+            : "Unknown Firestore error";
+        setError(`Could not load listings: ${message}`);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -64,7 +70,12 @@ export function ListingsClient({
         <div>
           {loading ? <LoadingState label="Loading approved listings..." /> : null}
           {error ? <ErrorState message={error} /> : null}
-          {!loading && !error ? <ListingGrid listings={filtered} /> : null}
+          {!loading && !error ? (
+            <ListingGrid
+              listings={filtered}
+              emptyMessage="No listings available yet. Be the first to post a component."
+            />
+          ) : null}
         </div>
       </div>
     </div>

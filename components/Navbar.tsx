@@ -31,15 +31,15 @@ export function Navbar() {
           >
             Browse
           </Link>
-          {isAdmin ? (
-            <Link
-              href="/admin"
-              className="hidden items-center gap-2 rounded-lg px-3 py-2 text-circuit-muted hover:bg-circuit-pale hover:text-circuit-ink sm:inline-flex"
-            >
-              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-              Admin
-            </Link>
-          ) : null}
+          <Link
+            href="/admin"
+            className={`hidden items-center gap-2 rounded-lg px-3 py-2 hover:bg-circuit-pale hover:text-circuit-ink sm:inline-flex ${
+              isAdmin ? "text-circuit-green" : "text-circuit-muted"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            Admin
+          </Link>
           <Link
             href="/add-listing"
             className="inline-flex items-center gap-2 rounded-lg bg-circuit-green px-3 py-2 text-white shadow-sm hover:bg-emerald-700"

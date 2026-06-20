@@ -5,13 +5,13 @@ import {
   onAuthStateChanged,
   signInWithPopup,
   signOut
-} from "firebase/auth";
+} from "@firebase/auth";
 import {
   doc,
   getDoc,
   serverTimestamp,
   setDoc
-} from "firebase/firestore";
+} from "@firebase/firestore";
 import {
   createContext,
   useCallback,

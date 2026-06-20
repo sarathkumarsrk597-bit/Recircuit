@@ -11,17 +11,23 @@ Buyers browse approved listings and contact sellers through WhatsApp. There is n
 - Tailwind CSS
 - Firebase Authentication with Google login
 - Firestore Database
-- Firebase Storage
+- Cloudinary unsigned uploads for listing images
 - Vercel deployment
+
+## Free-Tier Architecture
+
+ReCircuit uses Firebase only for Google login and Firestore listing data. Listing images upload directly to Cloudinary through an unsigned upload preset, and the returned image URLs are saved in Firestore.
+
+Firebase Storage is not used because new Firebase Storage setup can require a billing-enabled Firebase project.
 
 ## Features
 
 - Home page with hero search, category cards, recent listings, and post CTA
 - Listings page with search, category filter, condition filter, location filter, and price/newest sorting
 - Product detail page with image gallery, seller details, WhatsApp contact, and safety note
-- Protected add-listing page with validation, image upload, and pending status by default
+- Protected add-listing page with validation, Cloudinary image upload, and pending status by default
 - Admin dashboard for approving, rejecting, viewing, and deleting listings
-- Firebase config placeholders, Firestore rules, and Storage rules included
+- Firebase config placeholders and Firestore rules included
 
 ## Local Setup
 
@@ -43,16 +49,17 @@ On Windows PowerShell:
 Copy-Item .env.example .env.local
 ```
 
-3. Fill in `.env.local` with your Firebase project values:
+3. Fill in `.env.local`:
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
 NEXT_PUBLIC_ADMIN_EMAIL=admin@example.com
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=
 ```
 
 4. Start the development server:
@@ -65,19 +72,35 @@ Open `http://localhost:3000`.
 
 ## Firebase Setup
 
-1. Create a Firebase project.
-2. Enable Authentication.
-3. Add Google as a sign-in provider.
-4. Create a Firestore database.
-5. Create a Firebase Storage bucket.
-6. Add your local and production domains to Firebase Authentication authorized domains:
+1. Create a Firebase project on the Spark plan.
+2. Add a web app in Project settings and copy its config values.
+3. Enable Authentication.
+4. Add Google as a sign-in provider.
+5. Create a Firestore database.
+6. Deploy Firestore rules from `firestore.rules`.
+7. Add your local and production domains to Firebase Authentication authorized domains:
    - `localhost`
    - your Vercel domain
-7. Deploy Firestore rules from `firestore.rules`.
-8. Deploy Storage rules from `storage.rules`.
-9. Set `NEXT_PUBLIC_ADMIN_EMAIL` to the Google account that should access `/admin`.
+8. Set `NEXT_PUBLIC_ADMIN_EMAIL` to the Google account that should access `/admin`.
+
+Do not create or configure Firebase Storage for this MVP.
 
 The app creates a `users` document when someone signs in. If the signed-in email matches `NEXT_PUBLIC_ADMIN_EMAIL`, that user is marked as `admin`.
+
+## Cloudinary Setup
+
+1. Create a Cloudinary account.
+2. Copy your cloud name from the Cloudinary dashboard into `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`.
+3. Go to Settings > Upload > Upload presets.
+4. Create an unsigned upload preset.
+5. Restrict the preset for MVP safety:
+   - Resource type: image
+   - Allowed formats: jpg, jpeg, png, webp
+   - Folder: `recircuit/listings`
+   - Use a maximum file size that matches the app expectation, such as 5 MB
+6. Copy the preset name into `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`.
+
+Unsigned presets can be used from the browser, so treat the preset name as sensitive. Rotate it if it is exposed or abused.
 
 ## Database Structure
 

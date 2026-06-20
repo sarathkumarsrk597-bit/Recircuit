@@ -9,7 +9,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "firebase": "^12.15.0",
+    "@firebase/app": "^0.15.0",
+    "@firebase/auth": "^1.13.3",
+    "@firebase/firestore": "^4.16.0",
     "lucide-react": "^0.468.0",
     "next": "^16.2.9",
     "react": "^19.2.7",

@@ -18,7 +18,11 @@ export function formatDate(value?: { toDate: () => Date }) {
 
 export function getWhatsAppUrl(phone: string, title: string) {
   const digits = phone.replace(/\D/g, "");
-  const withCountryCode = digits.length === 10 ? `91${digits}` : digits;
+  const withoutLeadingZeros = digits.replace(/^0+/, "");
+  const withCountryCode =
+    withoutLeadingZeros.length === 10
+      ? `91${withoutLeadingZeros}`
+      : withoutLeadingZeros;
   const message = encodeURIComponent(
     `Hi, I found your "${title}" listing on ReCircuit. Is it still available?`
   );

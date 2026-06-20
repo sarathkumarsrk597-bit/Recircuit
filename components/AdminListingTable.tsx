@@ -132,7 +132,7 @@ export function AdminListingTable() {
                           {listing.title}
                         </p>
                         <p className="text-circuit-muted">
-                          {listing.category} · {listing.condition} ·{" "}
+                          {listing.category} / {listing.condition} /{" "}
                           {listing.location}
                         </p>
                       </div>

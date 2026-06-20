@@ -2,9 +2,15 @@ import { ListingCard } from "@/components/ListingCard";
 import { EmptyState } from "@/components/StatusMessage";
 import type { Listing } from "@/lib/types";
 
-export function ListingGrid({ listings }: { listings: Listing[] }) {
+export function ListingGrid({
+  listings,
+  emptyMessage = "No listings available yet. Be the first to post a component."
+}: {
+  listings: Listing[];
+  emptyMessage?: string;
+}) {
   if (listings.length === 0) {
-    return <EmptyState message="No approved listings match your search yet." />;
+    return <EmptyState message={emptyMessage} />;
   }
 
   return (

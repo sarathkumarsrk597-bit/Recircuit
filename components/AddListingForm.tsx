@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { CheckCircle2, ImagePlus, Loader2 } from "lucide-react";
 import { categories, conditions } from "@/lib/constants";
 import { createListing } from "@/lib/listings";
@@ -32,11 +32,23 @@ export function AddListingForm({
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
+  const [previews, setPreviews] = useState<string[]>([]);
 
-  const previews = useMemo(
-    () => values.images.map((file) => URL.createObjectURL(file)),
-    [values.images]
-  );
+  useEffect(() => {
+    let disposed = false;
+    const nextPreviews = values.images.map((file) => URL.createObjectURL(file));
+
+    Promise.resolve().then(() => {
+      if (!disposed) {
+        setPreviews(nextPreviews);
+      }
+    });
+
+    return () => {
+      disposed = true;
+      nextPreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    };
+  }, [values.images]);
 
   function update<K extends keyof ListingFormValues>(
     key: K,
@@ -237,10 +249,10 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1.5">
+    <div className="block space-y-1.5">
       <span className="label">{label}</span>
       {children}
       {error ? <span className="error-text">{error}</span> : null}
-    </label>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { Timestamp } from "firebase/firestore";
+import type { Timestamp } from "@firebase/firestore";
 import type { categories, conditions, listingStatuses } from "./constants";
 
 export type Category = (typeof categories)[number];
